@@ -18,19 +18,16 @@ function love.load()
 end
 
 function love.update(dt)
-    GUI.update(dt)
-
     local l = GUI.Label("Hello GUI")
-    local l2 = GUI.Label("Hello GUI", 10, 50)
 
     if (l:isHoveredIn()) then
-        print("hoverIn")
+        print("hoverIn: " .. l.id)
     end
     if (l:isHovered()) then
-        print("hovered")
+        print("hovered: " .. l.id)
     end
     if (l:isHoveredOut()) then
-        print("hoverOut")
+        print("hoverOut: " .. l.id)
     end
 end
 

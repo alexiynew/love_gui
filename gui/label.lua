@@ -1,17 +1,18 @@
-local function Label(core, text, x, y)
-    local base = package.loaded['gui.ui_control']
-    if not base then
-        error('ui_control packeage not loaded')
-    end
+---
 
-    local bg = { 0.2, 0.2, 0.4, 1 }
-    local fg = { 0.9, 0.9, 0.9, 1 }
-    local radius = 4
+local function Label(core, text, x, y)
     local x, y = x or 10, y or 10
     local w, h = 200, 30
 
+    local ui_control = core:newControl(x, y, w, h)
+
     core:addDrawCommand(
         function(graphics)
+            local s = ui_control.style
+            local fg = s.foreground_color
+            local bg = s.background_color
+            local radius = s.corner_radius
+
             graphics.setColor(bg)
             graphics.rectangle('fill', x, y, w, h, radius)
 
@@ -20,7 +21,7 @@ local function Label(core, text, x, y)
         end
     )
 
-    return base:new(core, x, y, w, h)
+    return ui_control
 end
 
 return Label

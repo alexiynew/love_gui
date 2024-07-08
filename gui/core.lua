@@ -1,74 +1,64 @@
 ---
---- @module 'UICore'
+--- @module 'Core'
 ---
+
+--- @class UIControl
 
 --- @alias ControlId number
 --- @alias HitBox [number,number,number,number] # {x, y, w, h}
 
---- @class UICore
+--- @class Core
 --- @field graphics table # Reference to love.graphics
 --- @field mouse table # Reference to love.mouse
 --- @field next_index ControlId # Id for next control
 --- @field draw_commands function[]
---- @field hit_boxes table<ControlId, HitBox>
---- @field last_hovered ControlId[]
---- @field current_hovered ControlId[]
-local UICore = {}
-UICore.__index = UICore
+--- @field last_hovered ControlId
+--- @field current_hovered ControlId
+--- @field mouse_pos [number,number] # {x, y}
+local Core = {}
+Core.__index = Core
 
-UICore.graphics = love.graphics
-UICore.mouse = love.mouse
-UICore.next_index = 1
-UICore.draw_commands = {}
-UICore.hit_boxes = {}
+Core.graphics = love.graphics
+Core.mouse = love.mouse
+Core.next_index = 1
+Core.draw_commands = {}
+Core.mouse_pos = { 0, 0 }
+Core.style = nil
 
-local function pointInRect(px, py, box)
+local function pointInRect(point, box)
+    local px, py = unpack(point)
     local x, y, w, h = unpack(box)
     return px >= x and px <= x + w and py >= y and py <= y + h
 end
 
-local function contains(table, value)
-    if not table then
-        return false
-    end
+local function endFrame()
+    Core.mouse_pos = { Core.mouse.getPosition() }
+    Core.next_index = 1
 
-    for _, v in ipairs(table) do
-        if v == value then return true end
-    end
-    return false
+    Core.last_hovered, Core.current_hovered = Core.current_hovered, nil
 end
 
-function UICore:update(dt)
-    local mx, my = self.mouse.getPosition()
-
-    self.last_hovered = self.current_hovered
-    self.current_hovered = {}
-    for id, hb in ipairs(self.hit_boxes) do
-        if pointInRect(mx, my, hb) then
-            table.insert(self.current_hovered, id)
-        end
-    end
-end
-
-function UICore:draw()
+function Core:draw()
     for _, command in pairs(self.draw_commands) do
         command(self.graphics)
     end
+
+    endFrame()
 end
 
-function UICore:isHoveredIn(id)
-    return not contains(self.last_hovered, id) and contains(self.current_hovered, id)
+function Core:isHoveredIn(id)
+    return id == self.current_hovered and id ~= self.last_hovered
 end
 
-function UICore:isHovered(id)
-    return contains(self.current_hovered, id)
+function Core:isHovered(id)
+    return id == self.current_hovered
 end
 
-function UICore:isHoveredOut(id)
-    return contains(self.last_hovered, id) and not contains(self.current_hovered, id)
+function Core:isHoveredOut(id)
+    return id ~= self.current_hovered and id == self.last_hovered
 end
 
-function UICore:getNewId()
+function Core:getNewId()
     local i = self.next_index
     self.next_index = self.next_index + 1
     return i
@@ -76,14 +66,44 @@ end
 
 --- Add new command to draw UIControl
 --- @param commnad function
-function UICore:addDrawCommand(commnad)
+function Core:addDrawCommand(commnad)
     table.insert(self.draw_commands, commnad)
 end
 
-function UICore:addHitBox(id, x, y, w, h)
-    if self.hit_boxes[id] == nil then
-        self.hit_boxes[id] = { x, y, w, h }
+--- Creates new UI control
+--- @return UIControl
+function Core:newControl(x, y, w, h)
+    local t = {}
+    t.__index = t
+
+    t.id = self:getNewId()
+    t.hit_box = { x, y, w, h }
+    t.style = self.style:default_style()
+
+
+    --- Cheks if control has been hevered
+    --- @return boolean # True if mouse hovers the control in this frame
+    t.isHoveredIn = function()
+        return self:isHoveredIn(t.id)
     end
+
+    --- Cheks if mouce is over control
+    --- @return boolean # True if mouse hovers the control
+    t.isHovered = function()
+        return self:isHovered(t.id)
+    end
+
+    --- Cheks if mouse leave control
+    --- @return boolean # True if mouse leave the control in this frame
+    t.isHoveredOut = function()
+        return self:isHoveredOut(t.id)
+    end
+
+    if pointInRect(self.mouse_pos, t.hit_box) then
+        self.current_hovered = t.id
+    end
+
+    return t
 end
 
-return UICore
+return Core

@@ -1,8 +1,9 @@
 local PATH_BASE = (...) .. "."
 
-local UICore = require(PATH_BASE .. 'core')
+local Core = require(PATH_BASE .. 'core')
+local Style = require(PATH_BASE .. 'style')
 
-require(PATH_BASE .. 'ui_control')
+Core.style = Style
 
 --- @class Label: UIControl
 
@@ -25,12 +26,11 @@ local label_func = require(PATH_BASE .. 'label')
 --- @param y? number
 --- @return Label
 local function Label(text, x, y)
-    return label_func(UICore, text, x, y)
+    return label_func(Core, text, x, y)
 end
 
 local gui = {
-    update = function(...) UICore:update(...) end,
-    draw = function(...) UICore:draw(...) end,
+    draw = function(...) Core:draw(...) end,
 
     -- UI elements
     Label = Label
