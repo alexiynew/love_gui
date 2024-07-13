@@ -1,6 +1,6 @@
 if arg[2] == 'debug' then
-    require('lldebugger').start()
-
+    local lldebugger = require('lldebugger')
+    lldebugger.start()
 
     local love_errorhandler = love.errorhandler
 
@@ -14,23 +14,17 @@ if arg[2] == 'debug' then
 end
 
 function love.load()
-    GUI = require 'gui'
+    GUI = require('gui')
 end
 
 function love.update(dt)
-    local l = GUI.Label("Hello GUI")
+    local l = GUI.Label("Hello GUI", 10, 10)
 
-    if (l:isHoveredIn()) then
-        print("hoverIn: " .. l.id)
-    end
     if (l:isHovered()) then
-        print("hovered: " .. l.id)
-    end
-    if (l:isHoveredOut()) then
-        print("hoverOut: " .. l.id)
+        print("hovered: ")
     end
 end
 
 function love.draw()
-    GUI.draw(dt)
+    GUI.draw()
 end

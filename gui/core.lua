@@ -1,29 +1,20 @@
----
---- @module 'Core'
----
+--- @alias Graphics table
 
---- @class UIControl
+--- @alias DrawFunction fun(graphics: Graphics, style :Style)
 
---- @alias ControlId number
---- @alias HitBox [number,number,number,number] # {x, y, w, h}
+--- @class DrawCommand
+--- @field control UIControl
+--- @field styles StyleList
+--- @field command DrawFunction
 
 --- @class Core
 --- @field graphics table # Reference to love.graphics
 --- @field mouse table # Reference to love.mouse
---- @field next_index ControlId # Id for next control
---- @field draw_commands function[]
---- @field last_hovered ControlId
---- @field current_hovered ControlId
---- @field mouse_pos [number,number] # {x, y}
+--- @field style StyleDescription # Style configuration
+--- @field draw_commands DrawCommand[] # list of functions to draw controls
+--- @field mouse_pos [number,number]|nil # {x, y}
 local Core = {}
-Core.__index = Core
 
-Core.graphics = love.graphics
-Core.mouse = love.mouse
-Core.next_index = 1
-Core.draw_commands = {}
-Core.mouse_pos = { 0, 0 }
-Core.style = nil
 
 local function pointInRect(point, box)
     local px, py = unpack(point)
@@ -31,77 +22,87 @@ local function pointInRect(point, box)
     return px >= x and px <= x + w and py >= y and py <= y + h
 end
 
-local function endFrame()
-    Core.mouse_pos = { Core.mouse.getPosition() }
-    Core.next_index = 1
+local function endFrame(core)
+    core.mouse_pos = { core.mouse.getPosition() }
+    core.draw_commands = {}
+end
 
-    Core.last_hovered, Core.current_hovered = Core.current_hovered, nil
+--- @param styles StyleList
+--- @param state ControlState
+--- @return Style
+local function chooseStyleFormState(styles, state)
+    if state.disabled then
+        return styles.disabled or styles.default
+    elseif state.clicked then
+        return styles.clicked or styles.default
+    elseif state.hover then
+        return styles.hover or styles.default
+    elseif state.focus then
+        return styles.focus or styles.default
+    end
+
+    return styles.default
 end
 
 function Core:draw()
-    for _, command in pairs(self.draw_commands) do
-        command(self.graphics)
+    for _, dc in ipairs(self.draw_commands) do
+
+        --- @type Style
+        local style = chooseStyleFormState(dc.styles, dc.control.state)
+        dc.command(self.graphics, style)
     end
 
-    endFrame()
-end
-
-function Core:isHoveredIn(id)
-    return id == self.current_hovered and id ~= self.last_hovered
-end
-
-function Core:isHovered(id)
-    return id == self.current_hovered
-end
-
-function Core:isHoveredOut(id)
-    return id ~= self.current_hovered and id == self.last_hovered
-end
-
-function Core:getNewId()
-    local i = self.next_index
-    self.next_index = self.next_index + 1
-    return i
+    endFrame(self)
 end
 
 --- Add new command to draw UIControl
---- @param commnad function
-function Core:addDrawCommand(commnad)
-    table.insert(self.draw_commands, commnad)
+--- @param control UIControl
+--- @param styles StyleList
+--- @param command DrawFunction
+function Core:addDrawCommand(control, styles, command)
+    --- @type DrawCommand
+    local dc = {
+        control = control,
+        styles = styles,
+        command = command,
+    }
+    self.draw_commands[#self.draw_commands + 1] = dc
 end
 
---- Creates new UI control
---- @return UIControl
-function Core:newControl(x, y, w, h)
-    local t = {}
-    t.__index = t
+--- Checks if mouse is in control hit box
+--- @param hit_box HitBox
+--- @return ControlState
+function Core:checkHitbox(hit_box)
+    --- @type boolean
+    local hover = self.mouse_pos and pointInRect(self.mouse_pos, hit_box) or false
 
-    t.id = self:getNewId()
-    t.hit_box = { x, y, w, h }
-    t.style = self.style:default_style()
+    --- @type ControlState
+    local state = {
+        disabled = false,
+        hover = hover,
+        clicked = false,
+        focus = false,
+    }
 
+    return state
+end
 
-    --- Cheks if control has been hevered
-    --- @return boolean # True if mouse hovers the control in this frame
-    t.isHoveredIn = function()
-        return self:isHoveredIn(t.id)
-    end
+--- Creates new core instance
+--- @param style StyleDescription
+--- @return Core
+function Core:new(style)
 
-    --- Cheks if mouce is over control
-    --- @return boolean # True if mouse hovers the control
-    t.isHovered = function()
-        return self:isHovered(t.id)
-    end
+    --- @type Core
+    local t = {
+        graphics = love.graphics,
+        mouse = love.mouse,
+        style = style,
+        draw_commands = {},
+        mouse_pos = nil,
+    }
 
-    --- Cheks if mouse leave control
-    --- @return boolean # True if mouse leave the control in this frame
-    t.isHoveredOut = function()
-        return self:isHoveredOut(t.id)
-    end
-
-    if pointInRect(self.mouse_pos, t.hit_box) then
-        self.current_hovered = t.id
-    end
+    setmetatable(t, self)
+    self.__index = self
 
     return t
 end
