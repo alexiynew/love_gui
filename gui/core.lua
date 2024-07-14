@@ -4,7 +4,6 @@
 
 --- @class DrawCommand
 --- @field control UIControl
---- @field styles StyleList
 --- @field command DrawFunction
 
 --- @class Core
@@ -13,6 +12,7 @@
 --- @field style StyleDescription # Style configuration
 --- @field draw_commands DrawCommand[] # list of functions to draw controls
 --- @field mouse_pos [number,number]|nil # {x, y}
+--- @field debug boolean # Show debug draw
 local Core = {}
 
 
@@ -27,29 +27,26 @@ local function endFrame(core)
     core.draw_commands = {}
 end
 
---- @param styles StyleList
---- @param state ControlState
---- @return Style
-local function chooseStyleFormState(styles, state)
-    if state.disabled then
-        return styles.disabled or styles.default
-    elseif state.clicked then
-        return styles.clicked or styles.default
-    elseif state.hover then
-        return styles.hover or styles.default
-    elseif state.focus then
-        return styles.focus or styles.default
+local function copyTable(input)
+    local res = {}
+    for k, v in pairs(input) do
+        if type(v) == "table" then
+            res[k] = copyTable(v)
+        else
+            res[k] = v
+        end
     end
 
-    return styles.default
+    return res
 end
+
 
 function Core:draw()
     for _, dc in ipairs(self.draw_commands) do
-
-        --- @type Style
-        local style = chooseStyleFormState(dc.styles, dc.control.state)
-        dc.command(self.graphics, style)
+        dc.command(self.graphics, dc.control.style)
+        if self.debug then
+            dc.control:drawDebugBox(self.graphics)
+        end
     end
 
     endFrame(self)
@@ -57,13 +54,11 @@ end
 
 --- Add new command to draw UIControl
 --- @param control UIControl
---- @param styles StyleList
 --- @param command DrawFunction
-function Core:addDrawCommand(control, styles, command)
+function Core:addDrawCommand(control, command)
     --- @type DrawCommand
     local dc = {
         control = control,
-        styles = styles,
         command = command,
     }
     self.draw_commands[#self.draw_commands + 1] = dc
@@ -87,11 +82,33 @@ function Core:checkHitbox(hit_box)
     return state
 end
 
+--- Returns control style depending on it's state
+--- @param state ControlState
+--- @return Style
+function Core:getStyle(state)
+    --- @tyle Style
+    local s = self.style.default
+    local res = nil
+
+    if state.disabled then
+        res = s.disabled or s.default
+    elseif state.clicked then
+        res = s.clicked or s.default
+    elseif state.hover then
+        res = s.hover or s.default
+    elseif state.focus then
+        res = s.focus or s.default
+    end
+
+    res = res or s.default
+
+    return copyTable(res)
+end
+
 --- Creates new core instance
 --- @param style StyleDescription
 --- @return Core
 function Core:new(style)
-
     --- @type Core
     local t = {
         graphics = love.graphics,
@@ -99,6 +116,7 @@ function Core:new(style)
         style = style,
         draw_commands = {},
         mouse_pos = nil,
+        debug = false,
     }
 
     setmetatable(t, self)

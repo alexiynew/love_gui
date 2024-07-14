@@ -4,28 +4,39 @@ local PATH_BASE = (...) .. "."
 local Core = require(PATH_BASE .. 'core')
 local Style = require(PATH_BASE .. 'style')
 
-local core = Core:new(Style)
-
 -- Load controls
 require(PATH_BASE .. 'ui_control')
-
-
 local createLabel = require(PATH_BASE .. 'label')
+
+local GUI = {}
+
+function GUI:draw()
+    self.core:draw()
+end
 
 --- Creates new label
 --- @param text string # Text to show
 --- @param x? integer # The x position
 --- @param y? integer # The y position
 --- @return Label
-local function Label(text, x, y)
-    return createLabel(core, text, x, y)
+function GUI:Label(text, x, y)
+    return createLabel(self.core, text, x, y)
 end
 
-local gui = {
-    draw = function() core:draw() end,
+function GUI:setDebugMode(enabled)
+    self.core.debug = enabled
+end
 
-    -- UI elements
-    Label = Label
-}
+function GUI:new()
+    local t = {}
 
-return gui
+    t.core = Core:new(Style)
+    t.core.debug = false
+
+    setmetatable(t, self)
+    self.__index = self
+
+    return t
+end
+
+return GUI

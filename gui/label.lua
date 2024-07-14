@@ -15,15 +15,12 @@ local function createLabel(core, text, x, y)
     --- @type Label
     local label = UIControl:new(core, x, y, w, h)
 
-    core:addDrawCommand(label, core.style.label, 
+    core:addDrawCommand(label,
         function(graphics, style)
-            local fg, bg, border = style.fg, style.bg, style.border
-
-            graphics.setColor(bg)
-            graphics.rectangle('fill', x, y, w, h, border.radius)
+            local fg = style.fg
 
             graphics.setColor(fg)
-            graphics.printf(text, x + 2, y, w - 4, "left")
+            graphics.printf(text, x, y, w, "left")
         end
     )
 

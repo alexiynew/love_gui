@@ -14,17 +14,15 @@ if arg[2] == 'debug' then
 end
 
 function love.load()
-    GUI = require('gui')
+    local gui = require('gui')
+
+    GUI = gui:new()
 end
 
 function love.update(dt)
-    local l = GUI.Label("Hello GUI", 10, 10)
-
-    if (l:isHovered()) then
-        print("hovered: ")
-    end
+    GUI:Label("Hello GUI", 10, 10)
 end
 
 function love.draw()
-    GUI.draw()
+    GUI:draw()
 end

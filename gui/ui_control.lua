@@ -1,4 +1,3 @@
-
 --- @alias HitBox [number,number,number,number] # {x, y, w, h}
 
 --- @class ControlState
@@ -11,15 +10,41 @@
 --- @class UIControl
 --- @field hit_box HitBox
 --- @field state ControlState
+--- @field style Style
 local UIControl = {}
+
+
+local debug_color = { 1, 0, 1, 1 }
 
 
 --- Cheks if mouse is over control
 --- @return boolean # True if mouse hovers the control
 function UIControl:isHovered()
-    return self.state.hover 
+    return self.state.hover
 end
 
+--- Draw control box
+--- @param graphics Graphics
+function UIControl:drawBox(graphics)
+    local bg, border = self.style.bg, self.style.border
+    local x, y, w, h = unpack(self.hit_box)
+
+    graphics.setColor(bg)
+    graphics.rectangle('fill', x, y, w, h, border.radius)
+
+    graphics.setLineWidth(border.width - 0.5)
+    graphics.setColor(border.color)
+    graphics.rectangle('line', x, y, w, h, border.radius, border.radius)
+end
+
+--- Draw debug bounding box
+--- @param graphics Graphics
+function UIControl:drawDebugBox(graphics)
+    local x, y, w, h = unpack(self.hit_box)
+
+    graphics.setColor(debug_color)
+    graphics.rectangle('line', x, y, w, h)
+end
 
 --- Creates new UIControl
 --- @param core Core
@@ -29,14 +54,16 @@ end
 --- @param h number # The height of control
 --- @return UIControl
 function UIControl:new(core, x, y, w, h)
-
     --- @type HitBox
-    local hit_box = {x, y, w, h}
+    local hit_box = { x, y, w, h }
+    local state = core:checkHitbox(hit_box)
+    local style = core:getStyle(state)
 
     --- @type UIControl
     local t = {
         hit_box = hit_box,
-        state = core:checkHitbox(hit_box),
+        state = state,
+        style = style,
     }
 
     setmetatable(t, self)
