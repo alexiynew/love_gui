@@ -11,6 +11,7 @@
 --- @field fg Color # foreground color
 --- @field bg Color # background color
 --- @field border Border
+--- @field font table|nil
 
 --- @class StyleList
 --- @field default Style
@@ -93,6 +94,7 @@ local default = {
     fg = text_color,
     bg = bg_color,
     border = default_border,
+    font = nil,
 }
 
 --- @type Style
@@ -100,6 +102,7 @@ local hover = {
     fg = text_color,
     bg = hover_bg_color,
     border = default_border,
+    font = nil,
 }
 
 --- @type StyleList

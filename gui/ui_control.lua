@@ -37,6 +37,20 @@ function UIControl:drawBox(graphics)
     graphics.rectangle('line', x, y, w, h, border.radius, border.radius)
 end
 
+--- Draw control box
+--- @param graphics Graphics
+--- @param text string
+function UIControl:drawText(graphics, text)
+    local x, y, w = unpack(self.hit_box)
+    local fg = self.style.fg
+    local font = self.style.font
+
+    graphics.setFont(font)
+    graphics.setColor(fg)
+    graphics.printf(text, x, y, w, "left")
+end
+
+
 --- Draw debug bounding box
 --- @param graphics Graphics
 function UIControl:drawDebugBox(graphics)
@@ -58,6 +72,8 @@ function UIControl:new(core, x, y, w, h)
     local hit_box = { x, y, w, h }
     local state = core:checkHitbox(hit_box)
     local style = core:getStyle(state)
+
+    style.font = style.font or core.font
 
     --- @type UIControl
     local t = {

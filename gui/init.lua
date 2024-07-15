@@ -24,7 +24,11 @@ function GUI:Label(text, x, y)
 end
 
 function GUI:setDebugMode(enabled)
-    self.core.debug = enabled
+    self.core.debug = enabled or false
+end
+
+function GUI:setFont(font)
+    self.core.font = font or self.core.font
 end
 
 function GUI:new()

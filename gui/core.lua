@@ -13,6 +13,7 @@
 --- @field draw_commands DrawCommand[] # list of functions to draw controls
 --- @field mouse_pos [number,number]|nil # {x, y}
 --- @field debug boolean # Show debug draw
+--- @field font table # Current UI font
 local Core = {}
 
 
@@ -117,6 +118,7 @@ function Core:new(style)
         draw_commands = {},
         mouse_pos = nil,
         debug = false,
+        font = love.graphics.getFont()
     }
 
     setmetatable(t, self)

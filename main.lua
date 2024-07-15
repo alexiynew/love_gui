@@ -13,16 +13,25 @@ if arg[2] == 'debug' then
     end
 end
 
+local Game = {}
+local MainFont = {}
+
 function love.load()
+    local font = love.graphics.newFont("NotoSans-Regular.ttf", 34)
+    MainFont = love.graphics.newFont("NotoSans-Regular.ttf", 14)
     local gui = require('gui')
 
-    GUI = gui:new()
+    Game.gui = gui:new()
+    Game.gui:setDebugMode(true)
+    Game.gui:setFont(font)
 end
 
 function love.update(dt)
-    GUI:Label("Hello GUI", 10, 10)
+    Game.gui:Label("Hello GUI", 10, 10)
 end
 
 function love.draw()
-    GUI:draw()
+    love.graphics.setFont(MainFont)
+
+    Game.gui:draw()
 end

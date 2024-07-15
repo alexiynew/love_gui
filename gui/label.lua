@@ -10,17 +10,12 @@ local UIControl = package.loaded['gui.ui_control']
 --- @return Label
 local function createLabel(core, text, x, y)
     x, y = x or 0, y or 0
-    local w, h = 200, 30
 
     --- @type Label
-    local label = UIControl:new(core, x, y, w, h)
-
+    local label = UIControl:new(core, x, y)
     core:addDrawCommand(label,
         function(graphics, style)
-            local fg = style.fg
-
-            graphics.setColor(fg)
-            graphics.printf(text, x, y, w, "left")
+            label:drawText(graphics, text)
         end
     )
 
