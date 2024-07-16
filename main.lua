@@ -23,15 +23,25 @@ function love.load()
 
     Game.gui = gui:new()
     Game.gui:setDebugMode(true)
-    Game.gui:setFont(font)
+    --- Game.gui:setFont()
 end
 
 function love.update(dt)
-    Game.gui:Label("Hello GUI", 10, 10)
+    local b = Game.gui:Button("Click me", 10, 60, 100, 30)
+    if b.hover then
+        Game.gui:Label("Button hover", 10, 10)
+    else
+        Game.gui:Label("Button normal", 10, 10)
+    end
 end
 
 function love.draw()
     love.graphics.setFont(MainFont)
-
     Game.gui:draw()
+end
+
+function love.keyreleased(key)
+    if key == "escape" then
+        love.event.quit()
+    end
 end

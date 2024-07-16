@@ -28,6 +28,7 @@ function Core:draw()
     -- End framw
     self.mouse_pos = { self.mouse.getPosition() }
     self.draw_commands = {}
+    self.hover_id = nil
 end
 
 

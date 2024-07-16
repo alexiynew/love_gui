@@ -6,6 +6,7 @@ local Style = require(PATH_BASE .. 'style')
 
 -- Load controls
 local Label = require(PATH_BASE .. 'label')
+local Button = require(PATH_BASE .. 'button')
 
 local GUI = {}
 
@@ -19,6 +20,16 @@ end
 --- @param y? integer # The y position
 function GUI:Label(text, x, y)
     return Label(self.core, text, x, y)
+end
+
+--- Creates new button
+--- @param text string # Text to show
+--- @param x integer # The x position
+--- @param y integer # The y position
+--- @param w integer # The width
+--- @param h integer # The height
+function GUI:Button(text, x, y, w, h)
+    return Button(self.core, text, x, y, w, h)
 end
 
 function GUI:setDebugMode(enabled)
