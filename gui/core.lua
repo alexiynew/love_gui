@@ -1,109 +1,83 @@
 --- @alias Graphics table
 
---- @alias DrawFunction fun(graphics: Graphics, style :Style)
-
---- @class DrawCommand
---- @field control UIControl
---- @field command DrawFunction
+--- @alias ControlId integer
+--- @alias DrawFunction fun(graphics: Graphics)
 
 --- @class Core
 --- @field graphics table # Reference to love.graphics
 --- @field mouse table # Reference to love.mouse
 --- @field style StyleDescription # Style configuration
---- @field draw_commands DrawCommand[] # list of functions to draw controls
 --- @field mouse_pos [number,number]|nil # {x, y}
 --- @field debug boolean # Show debug draw
 --- @field font table # Current UI font
+--- @field draw_commands table<ControlId,DrawFunction>
+--- @field hover_id ControlId|nil
 local Core = {}
 
 
-local function pointInRect(point, box)
+local function pointInRect(point, x, y, w, h)
     local px, py = unpack(point)
-    local x, y, w, h = unpack(box)
     return px >= x and px <= x + w and py >= y and py <= y + h
 end
 
-local function endFrame(core)
-    core.mouse_pos = { core.mouse.getPosition() }
-    core.draw_commands = {}
-end
-
-local function copyTable(input)
-    local res = {}
-    for k, v in pairs(input) do
-        if type(v) == "table" then
-            res[k] = copyTable(v)
-        else
-            res[k] = v
-        end
-    end
-
-    return res
-end
-
-
 function Core:draw()
-    for _, dc in ipairs(self.draw_commands) do
-        dc.command(self.graphics, dc.control.style)
-        if self.debug then
-            dc.control:drawDebugBox(self.graphics)
-        end
+    for _, c in ipairs(self.draw_commands) do
+        c(self.graphics)
     end
 
-    endFrame(self)
+    -- End framw
+    self.mouse_pos = { self.mouse.getPosition() }
+    self.draw_commands = {}
 end
 
---- Add new command to draw UIControl
---- @param control UIControl
---- @param command DrawFunction
-function Core:addDrawCommand(control, command)
-    --- @type DrawCommand
-    local dc = {
-        control = control,
-        command = command,
-    }
-    self.draw_commands[#self.draw_commands + 1] = dc
+
+--- New control id
+--- @return ControlId
+function Core:getNewId()
+    return #self.draw_commands + 1
 end
 
---- Checks if mouse is in control hit box
---- @param hit_box HitBox
---- @return ControlState
-function Core:checkHitbox(hit_box)
+
+--- Process controll
+--- @param id ControlId
+--- @param x integer
+--- @param y integer
+--- @param w integer
+--- @param h integer
+function Core:processControl(id, x, y, w, h)
     --- @type boolean
-    local hover = self.mouse_pos and pointInRect(self.mouse_pos, hit_box) or false
+    local hover = self.mouse_pos and pointInRect(self.mouse_pos, x, y, w, h) or false
 
-    --- @type ControlState
-    local state = {
-        disabled = false,
-        hover = hover,
-        clicked = false,
-        focus = false,
-    }
+    if hover then
+        self.hover_id = id
+    end
 
-    return state
+    return self:getStyle(id)
 end
 
---- Returns control style depending on it's state
---- @param state ControlState
+--- Returns control style
+--- @param id ControlId
 --- @return Style
-function Core:getStyle(state)
+function Core:getStyle(id)
+    --- @type boolean
+    local hover = self.hover_id == id
+
     --- @tyle Style
     local s = self.style.default
-    local res = nil
 
-    if state.disabled then
-        res = s.disabled or s.default
-    elseif state.clicked then
-        res = s.clicked or s.default
-    elseif state.hover then
-        res = s.hover or s.default
-    elseif state.focus then
-        res = s.focus or s.default
+    if hover then
+        return s.hover
     end
 
-    res = res or s.default
+    return s.default
+end
 
-    return copyTable(res)
+
+--- Adds new command to draw control
+--- @param id ControlId
+--- @param command DrawFunction
+function Core:addDrawCommnad(id, command)
+    self.draw_commands[id] = command
 end
 
 --- Creates new core instance
@@ -115,10 +89,11 @@ function Core:new(style)
         graphics = love.graphics,
         mouse = love.mouse,
         style = style,
-        draw_commands = {},
         mouse_pos = nil,
         debug = false,
-        font = love.graphics.getFont()
+        font = love.graphics.getFont(),
+        draw_commands = {},
+        hover_id = nil,
     }
 
     setmetatable(t, self)

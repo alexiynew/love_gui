@@ -5,8 +5,7 @@ local Core = require(PATH_BASE .. 'core')
 local Style = require(PATH_BASE .. 'style')
 
 -- Load controls
-require(PATH_BASE .. 'ui_control')
-local createLabel = require(PATH_BASE .. 'label')
+local Label = require(PATH_BASE .. 'label')
 
 local GUI = {}
 
@@ -18,9 +17,8 @@ end
 --- @param text string # Text to show
 --- @param x? integer # The x position
 --- @param y? integer # The y position
---- @return Label
 function GUI:Label(text, x, y)
-    return createLabel(self.core, text, x, y)
+    return Label(self.core, text, x, y)
 end
 
 function GUI:setDebugMode(enabled)

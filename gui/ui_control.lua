@@ -14,7 +14,6 @@
 local UIControl = {}
 
 
-local debug_color = { 1, 0, 1, 1 }
 
 
 --- Cheks if mouse is over control
@@ -50,7 +49,6 @@ function UIControl:drawText(graphics, text)
     graphics.printf(text, x, y, w, "left")
 end
 
-
 --- Draw debug bounding box
 --- @param graphics Graphics
 function UIControl:drawDebugBox(graphics)
@@ -58,6 +56,12 @@ function UIControl:drawDebugBox(graphics)
 
     graphics.setColor(debug_color)
     graphics.rectangle('line', x, y, w, h)
+end
+
+--- Draw control
+--- @param graphics Graphics
+function UIControl:draw(graphics)
+    error("Not implemented")
 end
 
 --- Creates new UIControl
@@ -72,8 +76,6 @@ function UIControl:new(core, x, y, w, h)
     local hit_box = { x, y, w, h }
     local state = core:checkHitbox(hit_box)
     local style = core:getStyle(state)
-
-    style.font = style.font or core.font
 
     --- @type UIControl
     local t = {

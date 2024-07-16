@@ -10,8 +10,8 @@
 --- @class Style
 --- @field fg Color # foreground color
 --- @field bg Color # background color
+--- @field debug_color Color # Debug color
 --- @field border Border
---- @field font table|nil
 
 --- @class StyleList
 --- @field default Style
@@ -74,6 +74,9 @@ local color = {
     -- gray
     concrete = hexToRGBA("#95A5A6"),
     asbestos = hexToRGBA("#7F8C8D"),
+
+    -- pink
+    fuchsia = hexToRGBA("#FF00FF")
 }
 
 local text_color = color.clouds
@@ -81,6 +84,8 @@ local bg_color = color.green_sea
 local border_color = color.midnight
 
 local hover_bg_color = color.turquose
+
+local debug_color = color.fuchsia
 
 --- @type Border
 local default_border = {
@@ -93,16 +98,16 @@ local default_border = {
 local default = {
     fg = text_color,
     bg = bg_color,
+    debug_color = debug_color,
     border = default_border,
-    font = nil,
 }
 
 --- @type Style
 local hover = {
     fg = text_color,
     bg = hover_bg_color,
+    debug_color = debug_color,
     border = default_border,
-    font = nil,
 }
 
 --- @type StyleList
