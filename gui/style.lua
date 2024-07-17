@@ -17,6 +17,7 @@
 --- @field default Style
 --- @field disabled Style|nil
 --- @field hover Style|nil
+--- @field active Style|nil
 --- @field clicked Style|nil
 --- @field focus Style|nil
 
@@ -75,6 +76,9 @@ local color = {
     concrete = hexToRGBA("#95A5A6"),
     asbestos = hexToRGBA("#7F8C8D"),
 
+    shadowed_steel = hexToRGBA("#4B4B4B"),
+    baltic_sea = hexToRGBA("#3D3D3D"),
+
     -- pink
     fuchsia = hexToRGBA("#FF00FF")
 }
@@ -110,10 +114,19 @@ local hover = {
     border = default_border,
 }
 
+--- @type Style
+local active = {
+    fg = color.shadowed_steel,
+    bg = color.emerald,
+    debug_color = debug_color,
+    border = default_border,
+}
+
 --- @type StyleList
 local default_stile = {
     default = default,
     hover = hover,
+    active = active,
 }
 
 --- @type StyleDescription

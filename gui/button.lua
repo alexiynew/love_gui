@@ -1,3 +1,5 @@
+local UIControl = require("gui.ui_control")
+
 --- Creates new button
 --- @param core Core
 --- @param text string # Text to show
@@ -14,36 +16,22 @@ local function Button(core, text, x, y, w, h)
     w = w or font:getWidth(text)
     h = h or font:getHeight()
 
-    local id = core:getNewId()
-    local style = core:processControl(id, x, y, w, h)
+    local control = UIControl:new(core, x, y, w, h)
 
-    local draw_function = function(graphics)
-        local fg, bg = style.fg, style.bg
-        local border = style.border
-
-        -- box
-        graphics.setColor(bg)
-        graphics.rectangle('fill', x, y, w, h, border.radius)
-
-        graphics.setLineWidth(border.width - 0.5)
-        graphics.setColor(border.color)
-        graphics.rectangle('line', x, y, w, h, border.radius, border.radius)
-
-        -- tex
-        graphics.setFont(font)
-        graphics.setColor(fg)
-        graphics.printf(text, x, y, w, "left")
-
+    local draw_function = function()
+        control:drawBox()
+        control:drawText(text, "center", "middle")
         if debug then
-            graphics.setColor(style.debug_color)
-            graphics.rectangle('line', x, y, w, h)
+            control:drawDebugBox()
         end
     end
 
-    core:addDrawCommnad(id, draw_function)
+    core:addDrawCommnad(control.id, draw_function)
 
     local button = {
-        hover = core.hover_id == id
+        hover = core.hover_id == control.id,
+        active = core.active_id == control.id,
+        clicked = core.clicked_id == control.id,
     }
 
     return button

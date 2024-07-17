@@ -1,87 +1,67 @@
---- @alias HitBox [number,number,number,number] # {x, y, w, h}
 
---- @class ControlState
---- @field disabled boolean # Is control in an disabled state. e.g. can't process events.
---- @field hover boolean # Is control hovered? User holding the mouse pointer over the control.
---- @field clicked boolean # Is control being activated by the user. For example, when the item is clicked on.
---- @field focus boolean # Does Control has keyboard focus.
-
-
---- @class UIControl
---- @field hit_box HitBox
---- @field state ControlState
---- @field style Style
 local UIControl = {}
 
+local function getOffsetForAlign(box_h, font_h,  v_align)
+    if v_align == "top" then
+        return 0
+    elseif v_align == "middle" then
+        return (box_h - font_h) / 2
+    elseif v_align == "bottom" then
+        return box_h - font_h
+    end
 
-
-
---- Cheks if mouse is over control
---- @return boolean # True if mouse hovers the control
-function UIControl:isHovered()
-    return self.state.hover
+    error("Invalid vertical alignment [" .. v_align .. "]")
 end
 
---- Draw control box
---- @param graphics Graphics
-function UIControl:drawBox(graphics)
-    local bg, border = self.style.bg, self.style.border
-    local x, y, w, h = unpack(self.hit_box)
-
-    graphics.setColor(bg)
-    graphics.rectangle('fill', x, y, w, h, border.radius)
-
-    graphics.setLineWidth(border.width - 0.5)
-    graphics.setColor(border.color)
-    graphics.rectangle('line', x, y, w, h, border.radius, border.radius)
-end
-
---- Draw control box
---- @param graphics Graphics
---- @param text string
-function UIControl:drawText(graphics, text)
-    local x, y, w = unpack(self.hit_box)
+function UIControl:drawText(text, h_align, v_align)
+    local gr = self.graphics
     local fg = self.style.fg
-    local font = self.style.font
 
-    graphics.setFont(font)
-    graphics.setColor(fg)
-    graphics.printf(text, x, y, w, "left")
+    h_align = h_align or "left"
+    v_align = v_align or "top"
+
+    -- center text inside button
+    local font_height = self.font:getHeight()
+    local text_y_offset = getOffsetForAlign(self.h, font_height, v_align)
+
+    gr.setFont(self.font)
+    gr.setColor(fg)
+    gr.printf(text, self.x, self.y + text_y_offset, self.w, h_align)
 end
 
---- Draw debug bounding box
---- @param graphics Graphics
-function UIControl:drawDebugBox(graphics)
-    local x, y, w, h = unpack(self.hit_box)
-
-    graphics.setColor(debug_color)
-    graphics.rectangle('line', x, y, w, h)
+function UIControl:drawDebugBox()
+    local gr = self.graphics
+    gr.setColor(self.style.debug_color)
+    gr.rectangle('line', self.x, self.y, self.w, self.h)
 end
 
---- Draw control
---- @param graphics Graphics
-function UIControl:draw(graphics)
-    error("Not implemented")
+function UIControl:drawBox()
+    local gr = self.graphics
+    local bg = self.style.bg
+    local border = self.style.border
+
+    -- box
+    gr.setColor(bg)
+    gr.rectangle('fill', self.x, self.y, self.w, self.h, border.radius)
+
+    gr.setLineWidth(border.width - 0.5)
+    gr.setColor(border.color)
+    gr.rectangle('line', self.x, self.y, self.w, self.h, border.radius, border.radius)
 end
 
---- Creates new UIControl
---- @param core Core
---- @param x number # The x position of control
---- @param y number # The y position of control
---- @param w number # The width of control
---- @param h number # The height of control
---- @return UIControl
 function UIControl:new(core, x, y, w, h)
-    --- @type HitBox
-    local hit_box = { x, y, w, h }
-    local state = core:checkHitbox(hit_box)
-    local style = core:getStyle(state)
+    local id = core:getNewId()
+    local style = core:processControl(id, x, y, w, h)
 
-    --- @type UIControl
     local t = {
-        hit_box = hit_box,
-        state = state,
+        graphics = core.graphics,
+        id = id,
+        font = core.font,
         style = style,
+        x = x,
+        y = y,
+        w = w,
+        h = h,
     }
 
     setmetatable(t, self)

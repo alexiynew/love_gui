@@ -3,15 +3,21 @@
 --- @alias ControlId integer
 --- @alias DrawFunction fun(graphics: Graphics)
 
+local left_mouse_button = 1
+local right_mouse_button = 2
+
 --- @class Core
 --- @field graphics table # Reference to love.graphics
 --- @field mouse table # Reference to love.mouse
 --- @field style StyleDescription # Style configuration
 --- @field mouse_pos [number,number]|nil # {x, y}
+--- @field mouse_down boolean
 --- @field debug boolean # Show debug draw
 --- @field font table # Current UI font
 --- @field draw_commands table<ControlId,DrawFunction>
 --- @field hover_id ControlId|nil
+--- @field active_id ControlId|nil
+--- @field clicked_id ControlId|nil
 local Core = {}
 
 
@@ -27,8 +33,10 @@ function Core:draw()
 
     -- End framw
     self.mouse_pos = { self.mouse.getPosition() }
+    self.mouse_down = self.mouse.isDown( left_mouse_button, right_mouse_button )
     self.draw_commands = {}
     self.hover_id = nil
+    self.clicked_id = nil
 end
 
 
@@ -48,9 +56,23 @@ end
 function Core:processControl(id, x, y, w, h)
     --- @type boolean
     local hover = self.mouse_pos and pointInRect(self.mouse_pos, x, y, w, h) or false
+    local active = self.active_id == id
 
     if hover then
+        if active and not self.mouse_down then
+            -- click
+            self.clicked_id = id
+            self.active_id = nil
+        elseif self.mouse_down and self.active_id == nil then
+            -- press
+            self.active_id = id
+        end
+
         self.hover_id = id
+    else
+        if active then
+            self.active_id = nil
+        end
     end
 
     return self:getStyle(id)
@@ -61,12 +83,15 @@ end
 --- @return Style
 function Core:getStyle(id)
     --- @type boolean
+    local active = self.active_id == id
     local hover = self.hover_id == id
 
     --- @tyle Style
     local s = self.style.default
 
-    if hover then
+    if active then
+        return s.active
+    elseif hover then
         return s.hover
     end
 
@@ -91,10 +116,13 @@ function Core:new(style)
         mouse = love.mouse,
         style = style,
         mouse_pos = nil,
+        mouse_down = false,
         debug = false,
         font = love.graphics.getFont(),
         draw_commands = {},
         hover_id = nil,
+        active_id = nil,
+        clicked_id = nil,
     }
 
     setmetatable(t, self)

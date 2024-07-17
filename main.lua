@@ -14,29 +14,40 @@ if arg[2] == 'debug' then
 end
 
 local Game = {}
-local MainFont = {}
 
 function love.load()
-    local font = love.graphics.newFont("NotoSans-Regular.ttf", 34)
-    MainFont = love.graphics.newFont("NotoSans-Regular.ttf", 14)
     local gui = require('gui')
+
+    Game.cursor = love.mouse.getSystemCursor("hand")
+    -- local ui_font = love.graphics.newFont("NotoSans-Regular.ttf", 14)
+    local ui_font = love.graphics.newFont("NotoSans-Bold.ttf", 14)
 
     Game.gui = gui:new()
     Game.gui:setDebugMode(true)
-    --- Game.gui:setFont()
+    Game.gui:setFont(ui_font)
 end
 
 function love.update(dt)
-    local b = Game.gui:Button("Click me", 10, 60, 100, 30)
-    if b.hover then
-        Game.gui:Label("Button hover", 10, 10)
-    else
-        Game.gui:Label("Button normal", 10, 10)
+
+    for i = 1, 5 do
+        local pos = 10 + i * (100 + 10)
+        local b = Game.gui:Button("Click me " .. i, pos, 60, 100, 30)
+
+        love.mouse.setCursor()
+        if b.clicked then
+            Game.gui:Label("Button " .. i .. " clicked", pos, 10)
+            print("click " .. i)
+        elseif b.active then
+            Game.gui:Label("Button " .. i .. " active", pos, 10)
+        elseif b.hover then
+            Game.gui:Label("Button " .. i .. " hover", pos, 10)
+        else
+            Game.gui:Label("Button " .. i .. " normal", pos, 10)
+        end
     end
 end
 
 function love.draw()
-    love.graphics.setFont(MainFont)
     Game.gui:draw()
 end
 

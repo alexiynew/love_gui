@@ -1,3 +1,5 @@
+local UIControl = require("gui.ui_control")
+
 --- Creates new label
 --- @param core Core
 --- @param text string # Text to show
@@ -12,23 +14,16 @@ local function Label(core, text, x, y)
     local h = font:getHeight()
     local w = font:getWidth(text)
 
-    local id = core:getNewId()
-    local style = core:processControl(id, x, y, w, h)
+    local control = UIControl:new(core, x, y, w, h)
 
-    local draw_function = function(graphics)
-        local fg = style.fg
-
-        graphics.setFont(font)
-        graphics.setColor(fg)
-        graphics.printf(text, x, y, w, "left")
-
+    local draw_function = function()
+        control:drawText(text)
         if debug then
-            graphics.setColor(style.debug_color)
-            graphics.rectangle('line', x, y, w, h)
+            control:drawDebugBox()
         end
     end
 
-    core:addDrawCommnad(id, draw_function)
+    core:addDrawCommnad(control.id, draw_function)
 end
 
 return Label
