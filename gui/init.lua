@@ -7,7 +7,10 @@ local Style = require(PATH_BASE .. 'style')
 -- Load controls
 local Label = require(PATH_BASE .. 'label')
 local Button = require(PATH_BASE .. 'button')
+local Slider = require(PATH_BASE .. 'slider')
 
+--- @class GUI
+--- @field core Core
 local GUI = {}
 
 function GUI:draw()
@@ -30,6 +33,19 @@ end
 --- @param h integer # The height
 function GUI:Button(text, x, y, w, h)
     return Button(self.core, text, x, y, w, h)
+end
+
+--- Creates new slider
+--- @param x integer # The x position
+--- @param y integer # The y position
+--- @param w integer # The width
+--- @param h integer # The height
+--- @param min integer # The min value
+--- @param max integer # The max value
+--- @param value integer # The currnet value
+--- @param step integer # The step to change value
+function GUI:Slider(x, y, w, h, min, max, value, step)
+    return Slider(self.core, x, y, w, h, min, max, value, step)
 end
 
 function GUI:setDebugMode(enabled)

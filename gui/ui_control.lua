@@ -54,6 +54,7 @@ function UIControl:new(core, x, y, w, h)
     local style = core:processControl(id, x, y, w, h)
 
     local t = {
+        core = core,
         graphics = core.graphics,
         id = id,
         font = core.font,

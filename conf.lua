@@ -3,4 +3,5 @@ function love.conf(t)
     t.window.height = 768
 
     t.window.msaa = 8
+    t.gammacorrect = true
 end

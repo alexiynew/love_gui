@@ -13,7 +13,11 @@ if arg[2] == 'debug' then
     end
 end
 
-local Game = {}
+--- @class Game
+--- @field gui GUI|nil
+local Game = {
+    gui = nil
+}
 
 function love.load()
     local gui = require('gui')
@@ -23,28 +27,38 @@ function love.load()
     local ui_font = love.graphics.newFont("NotoSans-Bold.ttf", 14)
 
     Game.gui = gui:new()
-    Game.gui:setDebugMode(true)
+    Game.gui:setDebugMode(false)
     Game.gui:setFont(ui_font)
 end
+
+local function stateToString(control)
+    if control.clicked then
+        return "clicked"
+    elseif control.active then
+        return "active"
+    elseif control.hover then
+        return "hover"
+    else
+        return "normal"
+    end
+end
+
+local slider_value = 0
 
 function love.update(dt)
 
     for i = 1, 5 do
         local pos = 10 + i * (100 + 10)
         local b = Game.gui:Button("Click me " .. i, pos, 60, 100, 30)
-
-        love.mouse.setCursor()
-        if b.clicked then
-            Game.gui:Label("Button " .. i .. " clicked", pos, 10)
-            print("click " .. i)
-        elseif b.active then
-            Game.gui:Label("Button " .. i .. " active", pos, 10)
-        elseif b.hover then
-            Game.gui:Label("Button " .. i .. " hover", pos, 10)
-        else
-            Game.gui:Label("Button " .. i .. " normal", pos, 10)
-        end
+        local state = stateToString(b)
+        Game.gui:Label("Button " .. i .. " " .. state, pos, 10)
     end
+
+    local s = Game.gui:Slider(10, 120, 200, 30, -2, 2, slider_value, 0.1)
+    local state = stateToString(s)
+    slider_value = s.value
+    Game.gui:Label("Slider " .. state, 10, 160)
+    Game.gui:Label("Slider value " .. slider_value, 10, 180)
 end
 
 function love.draw()

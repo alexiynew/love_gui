@@ -70,7 +70,7 @@ function Core:processControl(id, x, y, w, h)
 
         self.hover_id = id
     else
-        if active then
+        if active and not self.mouse_down then
             self.active_id = nil
         end
     end
