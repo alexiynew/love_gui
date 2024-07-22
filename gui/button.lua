@@ -3,13 +3,6 @@ local TextComponent = require("gui.text_component")
 local BorderComponent = require("gui.border_component")
 local BackgroundComponent = require("gui.background_component")
 
---- Creates new button
---- @param core Core
---- @param text string # Text to show
---- @param x integer # The x position
---- @param y integer # The y position
---- @param w integer # The width
---- @param h integer # The hiegh
 local function Button(core, text, x, y, w, h)
     x, y = x or 0, y or 0
 
@@ -19,6 +12,8 @@ local function Button(core, text, x, y, w, h)
     h = h or font:getHeight()
 
     local control = UIControl:new(core, x, y, w, h)
+    control.handle_mouse_input = true
+
     local state = core:processControl(control)
     local style = core:getStyle(state)
     control.text = TextComponent:new(text, font, style.fg, "center", "middle")

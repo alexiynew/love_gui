@@ -7,12 +7,14 @@ local DebugComponent = require("gui.debug_component")
 --- @field clicked boolean
 local State = {}
 
+
 --- @class UIControl
 --- @field id ControlId
 --- @field x integer
 --- @field y integer
 --- @field w integer
 --- @field h integer
+--- @field handle_mouse_input boolean
 --- @field parent? UIControl
 --- @field children? UIControl[]
 --- @field text? TextComponent
@@ -20,7 +22,6 @@ local State = {}
 --- @field border? BorderComponent
 --- @field debug? DebugComponent
 local UIControl = {}
-
 
 
 function UIControl:draw(graphics)
@@ -80,6 +81,7 @@ function UIControl:new(core, x, y, w, h)
         y = y,
         w = w,
         h = h,
+        handle_mouse_input = false,
         children = {},
     }
 

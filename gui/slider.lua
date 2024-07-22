@@ -11,17 +11,6 @@ local function map(min, max, value, new_min, new_max)
     return new_min + (new_max - new_min) * t
 end
 
-
---- Creates new slider
---- @param core Core
---- @param x integer # The x position
---- @param y integer # The y position
---- @param w? integer # The width, default 100
---- @param h? integer # The height, defualt 30
---- @param min? integer # The min value, default 0
---- @param max? integer # The max value, defualt 100
---- @param value? integer # The currnet value, default 0
---- @param step? integer # The step to change value, default 1
 local function Slider(core, x, y, w, h, min, max, value, step)
     x, y, w, h = x or 0, y or 0, w or 100, h or 30
     min, max, value = min or 0, max or 100, value or 0
@@ -37,17 +26,20 @@ local function Slider(core, x, y, w, h, min, max, value, step)
     local line = UIControl:new(core, 0, 10, w, h - 20)
     local handle = UIControl:new(core, handle_pos, 0, handle_width, h)
 
+    line.handle_mouse_input = true
+    handle.handle_mouse_input = true
+
     control:addChild(line)
     control:addChild(handle)
 
-    core:processControl(control)
-    local line_state = core:processControl(line)
     local handle_state = core:processControl(handle)
+    local line_state = core:processControl(line)
+    core:processControl(control)
 
     --- @type State
     local state = {
         hover = handle_state.hover or line_state.hover,
-        active = handle_state.active,
+        active = handle_state.active or line_state.active,
         clicked = false,
     }
 
@@ -60,6 +52,8 @@ local function Slider(core, x, y, w, h, min, max, value, step)
 
         new_value = map(handle_min, handle_max, handle_pos, min, max)
         new_value = math.floor(new_value / step) * step
+
+        handle_pos = map(min, max, new_value, handle_min, handle_max)
         handle.x = handle_pos
     end
 
@@ -73,7 +67,8 @@ local function Slider(core, x, y, w, h, min, max, value, step)
 
     core:addControl(control)
 
-    return state.active, new_value
+    local changed = value ~= new_value
+    return changed, new_value
 end
 
 return Slider

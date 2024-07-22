@@ -16,7 +16,7 @@ local right_mouse_button = 2
 --- @field font table # Current UI font
 --- @field controls UIControl[]
 --- @field next_id ControlId
---- @field hover_ids table<ControlId, boolean>
+--- @field hover_id ControlId|nil
 --- @field active_id ControlId|nil
 --- @field clicked_id ControlId|nil
 local Core = {}
@@ -37,7 +37,7 @@ function Core:draw()
     self.mouse_down = self.mouse.isDown( left_mouse_button, right_mouse_button )
     self.controls = {}
     self.next_id = 0
-    self.hover_ids = {}
+    self.hover_id = nil
     self.clicked_id = nil
 end
 
@@ -55,9 +55,9 @@ end
 function Core:getState(id)
     --- @type State
     local state = {
-        hover = self.hover_ids[id] or false,
+        hover = self.hover_id == id,
         active = self.active_id == id,
-        clicked = self.clicked_id == id
+        clicked = self.clicked_id == id,
     }
 
     return state
@@ -67,6 +67,16 @@ end
 --- @param control UIControl
 --- @return State
 function Core:processControl(control)
+    if not control.handle_mouse_input then
+        --- @type State
+        local state = {
+            hover = false,
+            active = false,
+            clicked = false,
+        }
+        return state
+    end
+
     local x, y = control:absolutePosition()
     local w, h = control.w, control.h
     local id = control.id
@@ -86,7 +96,7 @@ function Core:processControl(control)
             self.active_id = id
         end
 
-        self.hover_ids[id] = true
+        self.hover_id = id
     else
         if active and not self.mouse_down then
             self.active_id = nil
@@ -135,7 +145,7 @@ function Core:new(style)
         font = love.graphics.getFont(),
         controls = {},
         next_id = 0,
-        hover_ids = {},
+        hover_id = nil,
         active_id = nil,
         clicked_id = nil,
     }

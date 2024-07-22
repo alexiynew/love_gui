@@ -52,9 +52,11 @@ function love.update(dt)
         local clicked = Game.gui:Button("Click me " .. i, pos, 60, 100, 30)
     end
 
-    local s_active, s_value = Game.gui:Slider(10, 120, 200, 30, -2, 2, slider_value, 0.1)
-    slider_value = s_value
-    Game.gui:Label("Slider " .. slider_value, 10, 180)
+    local s_active, s_value = Game.gui:Slider(10, 120, 200, 30, -2, 20, slider_value, 0.01)
+    if s_active then
+        slider_value = s_value
+    end
+    Game.gui:Label("Slider " .. slider_value .. "  " .. tostring(s_active) .. "  " .. s_value, 10, 180)
 end
 
 function love.draw()
