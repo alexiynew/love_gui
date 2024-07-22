@@ -1,69 +1,91 @@
 
+local DebugComponent = require("gui.debug_component")
+
+--- @class State
+--- @field hover boolean
+--- @field active boolean
+--- @field clicked boolean
+local State = {}
+
+--- @class UIControl
+--- @field id ControlId
+--- @field x integer
+--- @field y integer
+--- @field w integer
+--- @field h integer
+--- @field parent? UIControl
+--- @field children? UIControl[]
+--- @field text? TextComponent
+--- @field background? BackgroundComponent
+--- @field border? BorderComponent
+--- @field debug? DebugComponent
 local UIControl = {}
 
-local function getOffsetForAlign(box_h, font_h,  v_align)
-    if v_align == "top" then
-        return 0
-    elseif v_align == "middle" then
-        return (box_h - font_h) / 2
-    elseif v_align == "bottom" then
-        return box_h - font_h
+
+
+function UIControl:draw(graphics)
+    local x, y = self:absolutePosition()
+    local w, h = self.w, self.h
+
+    if self.background then
+        local radius = self.border and self.border.radius or 0
+        self.background:draw(graphics, x, y, w, h, radius)
+    end
+    if self.border then
+        self.border:draw(graphics, x, y, w, h)
+    end
+    if self.text then
+        self.text:draw(graphics, x, y, w, h)
+    end
+    if self.debug then
+        self.debug:draw(graphics, x, y, w, h)
     end
 
-    error("Invalid vertical alignment [" .. v_align .. "]")
+    if self.children then
+        for _, c in ipairs(self.children) do
+            c:draw(graphics)
+        end
+    end
 end
 
-function UIControl:drawText(text, h_align, v_align)
-    local gr = self.graphics
-    local fg = self.style.fg
+--- Get absolute position of the control (x, y)
+--- @return integer
+--- @return integer
+function UIControl:absolutePosition()
+    local x, y = self.x, self.y
 
-    h_align = h_align or "left"
-    v_align = v_align or "top"
+    if self.parent then
+        local px, py = self.parent:absolutePosition()
+        x = x + px
+        y = y + py
+    end
 
-    -- center text inside button
-    local font_height = self.font:getHeight()
-    local text_y_offset = getOffsetForAlign(self.h, font_height, v_align)
-
-    gr.setFont(self.font)
-    gr.setColor(fg)
-    gr.printf(text, self.x, self.y + text_y_offset, self.w, h_align)
+    return x, y
 end
 
-function UIControl:drawDebugBox()
-    local gr = self.graphics
-    gr.setColor(self.style.debug_color)
-    gr.rectangle('line', self.x, self.y, self.w, self.h)
+
+function UIControl:addChild(control)
+    self.children[#self.children+1] = control
+    control.parent = self
 end
 
-function UIControl:drawBox()
-    local gr = self.graphics
-    local bg = self.style.bg
-    local border = self.style.border
-
-    -- box
-    gr.setColor(bg)
-    gr.rectangle('fill', self.x, self.y, self.w, self.h, border.radius)
-
-    gr.setLineWidth(border.width - 0.5)
-    gr.setColor(border.color)
-    gr.rectangle('line', self.x, self.y, self.w, self.h, border.radius, border.radius)
-end
 
 function UIControl:new(core, x, y, w, h)
     local id = core:getNewId()
-    local style = core:processControl(id, x, y, w, h)
 
+    --- @type UIControl
     local t = {
-        core = core,
-        graphics = core.graphics,
         id = id,
-        font = core.font,
-        style = style,
         x = x,
         y = y,
         w = w,
         h = h,
+        children = {},
     }
+
+    if core.debug then
+        t.debug = DebugComponent:new(core.style.debug_color)
+    end
 
     setmetatable(t, self)
     self.__index = self

@@ -1,86 +1,79 @@
 local UIControl = require("gui.ui_control")
+local BorderComponent = require("gui.border_component")
+local BackgroundComponent = require("gui.background_component")
+
+local function clamp(min, max, value)
+    return math.max(min, math.min(max, value))
+end
+
+local function map(min, max, value, new_min, new_max)
+    local t = min ~= max and ((value - min) / (max - min)) or 0
+    return new_min + (new_max - new_min) * t
+end
+
 
 --- Creates new slider
 --- @param core Core
 --- @param x integer # The x position
 --- @param y integer # The y position
---- @param w integer # The width
---- @param h integer # The height
---- @param min integer # The min value
---- @param max integer # The max value
---- @param value integer # The currnet value
---- @param step integer # The step to change value
+--- @param w? integer # The width, default 100
+--- @param h? integer # The height, defualt 30
+--- @param min? integer # The min value, default 0
+--- @param max? integer # The max value, defualt 100
+--- @param value? integer # The currnet value, default 0
+--- @param step? integer # The step to change value, default 1
 local function Slider(core, x, y, w, h, min, max, value, step)
     x, y, w, h = x or 0, y or 0, w or 100, h or 30
     min, max, value = min or 0, max or 100, value or 0
-    value = math.max(min, math.min(max, value))
+    value = clamp(min, max, value)
     step = step or 1
 
+    local handle_width = 10
+    local handle_min = 0
+    local handle_max = w - handle_width
+    local handle_pos = map(min, max, value, handle_min, handle_max)
+
     local control = UIControl:new(core, x, y, w, h)
+    local line = UIControl:new(core, 0, 10, w, h - 20)
+    local handle = UIControl:new(core, handle_pos, 0, handle_width, h)
 
-    local slider = {
-        hover = core.hover_id == control.id,
-        active = core.active_id == control.id,
-        clicked = core.clicked_id == control.id,
-        value = 0,
+    control:addChild(line)
+    control:addChild(handle)
+
+    core:processControl(control)
+    local line_state = core:processControl(line)
+    local handle_state = core:processControl(handle)
+
+    --- @type State
+    local state = {
+        hover = handle_state.hover or line_state.hover,
+        active = handle_state.active,
+        clicked = false,
     }
 
-    local line = {
-        width = w,
-        height = 15,
-        radius = 7,
-        color = {1, 0, 0, 1}
-    }
+    local new_value = value
+    if state.active and core.mouse_pos then
+        local handle_offset, _ = handle.parent:absolutePosition()
+        local mp = core.mouse_pos[1]
+        mp = mp - handle_offset - handle_width / 2
+        handle_pos = clamp(handle_min, handle_max, mp)
 
-    local handle = {
-        width = 20,
-        height = h,
-        radius = 7,
-        color = {0,1,0,1}
-    }
-
-    local gr = control.graphics
-
-    local line_top_offset = (h - line.height) / 2
-    local handle_top_offset = line_top_offset + (line.height - handle.height) / 2
-
-    local handle_min = x
-    local handle_max = x + w - handle.width
-    local handle_pos = x
-
-    if slider.active and control.core.mouse_pos then
-        local mp = control.core.mouse_pos[1]
-        handle_pos = mp - handle.width / 2
-        handle_pos = handle_min > handle_pos and handle_min or handle_pos
-        handle_pos = handle_max < handle_pos and handle_max or handle_pos
-
-        local t = handle_max ~= handle_min and (handle_pos - handle_min) / (handle_max - handle_min) or 0
-
-        value = min + (max - min) * t
-        value = math.floor(value / step) * step
+        new_value = map(handle_min, handle_max, handle_pos, min, max)
+        new_value = math.floor(new_value / step) * step
+        handle.x = handle_pos
     end
 
-    local t = max ~= min and (value - min) / (max - min) or 0
-    handle_pos = x + (handle_max - handle_min) * t
+    local style = core:getStyle(state)
 
-    slider.value = value
+    line.background = BackgroundComponent:new(style.bg)
+    line.border = BorderComponent:new(style.border.color, style.border.width, style.border.radius)
 
-    local draw_function = function()
-        -- line
-        gr.setLineWidth(1)
-        gr.setColor(line.color)
-        gr.rectangle('fill', x, y + line_top_offset, line.width, line.height, line.radius, line.radius)
+    handle.background = BackgroundComponent:new(style.bg)
+    handle.border = BorderComponent:new(style.border.color, style.border.width, style.border.radius)
 
-        -- handle
-        gr.setColor(handle.color)
-        gr.rectangle('fill', handle_pos, y + handle_top_offset, handle.width, handle.height, handle.radius, handle.radius)
+    core:addControl(control)
 
-        control:drawDebugBox()
-    end
-
-    core:addDrawCommnad(control.id, draw_function)
-
-    return slider
+    return state.active, new_value
 end
 
 return Slider

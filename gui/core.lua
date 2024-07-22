@@ -14,8 +14,9 @@ local right_mouse_button = 2
 --- @field mouse_down boolean
 --- @field debug boolean # Show debug draw
 --- @field font table # Current UI font
---- @field draw_commands table<ControlId,DrawFunction>
---- @field hover_id ControlId|nil
+--- @field controls UIControl[]
+--- @field next_id ControlId
+--- @field hover_ids table<ControlId, boolean>
 --- @field active_id ControlId|nil
 --- @field clicked_id ControlId|nil
 local Core = {}
@@ -27,15 +28,16 @@ local function pointInRect(point, x, y, w, h)
 end
 
 function Core:draw()
-    for _, c in ipairs(self.draw_commands) do
-        c(self.graphics)
+    for _, c in ipairs(self.controls) do
+        c:draw(self.graphics)
     end
 
     -- End framw
     self.mouse_pos = { self.mouse.getPosition() }
     self.mouse_down = self.mouse.isDown( left_mouse_button, right_mouse_button )
-    self.draw_commands = {}
-    self.hover_id = nil
+    self.controls = {}
+    self.next_id = 0
+    self.hover_ids = {}
     self.clicked_id = nil
 end
 
@@ -43,55 +45,68 @@ end
 --- New control id
 --- @return ControlId
 function Core:getNewId()
-    return #self.draw_commands + 1
+    self.next_id = self.next_id + 1
+    return self.next_id
 end
 
+--- Get control state
+--- @param id ControlId
+--- @return State
+function Core:getState(id)
+    --- @type State
+    local state = {
+        hover = self.hover_ids[id] or false,
+        active = self.active_id == id,
+        clicked = self.clicked_id == id
+    }
+
+    return state
+end
 
 --- Process controll
---- @param id ControlId
---- @param x integer
---- @param y integer
---- @param w integer
---- @param h integer
-function Core:processControl(id, x, y, w, h)
-    --- @type boolean
+--- @param control UIControl
+--- @return State
+function Core:processControl(control)
+    local x, y = control:absolutePosition()
+    local w, h = control.w, control.h
+    local id = control.id
+
     local hover = self.mouse_pos and pointInRect(self.mouse_pos, x, y, w, h) or false
-    local active = self.active_id == id
+    local active = self.active_id
 
     if hover then
+        -- click
         if active and not self.mouse_down then
-            -- click
             self.clicked_id = id
             self.active_id = nil
-        elseif self.mouse_down and self.active_id == nil then
-            -- press
+        end
+
+        -- press
+        if not active and self.mouse_down then
             self.active_id = id
         end
 
-        self.hover_id = id
+        self.hover_ids[id] = true
     else
         if active and not self.mouse_down then
             self.active_id = nil
         end
     end
 
-    return self:getStyle(id)
+    return self:getState(id)
 end
 
 --- Returns control style
---- @param id ControlId
+--- @param state State
 --- @return Style
-function Core:getStyle(id)
-    --- @type boolean
-    local active = self.active_id == id
-    local hover = self.hover_id == id
-
-    --- @tyle Style
+function Core:getStyle(state)
     local s = self.style.default
 
-    if active then
+    if state.clicked then
+        return s.clicked
+    elseif state.active then
         return s.active
-    elseif hover then
+    elseif state.hover then
         return s.hover
     end
 
@@ -100,10 +115,9 @@ end
 
 
 --- Adds new command to draw control
---- @param id ControlId
---- @param command DrawFunction
-function Core:addDrawCommnad(id, command)
-    self.draw_commands[id] = command
+--- @param control UIControl
+function Core:addControl(control)
+    self.controls[#self.controls + 1] = control
 end
 
 --- Creates new core instance
@@ -119,8 +133,9 @@ function Core:new(style)
         mouse_down = false,
         debug = false,
         font = love.graphics.getFont(),
-        draw_commands = {},
-        hover_id = nil,
+        controls = {},
+        next_id = 0,
+        hover_ids = {},
         active_id = nil,
         clicked_id = nil,
     }

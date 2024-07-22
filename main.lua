@@ -49,16 +49,12 @@ function love.update(dt)
 
     for i = 1, 5 do
         local pos = 10 + i * (100 + 10)
-        local b = Game.gui:Button("Click me " .. i, pos, 60, 100, 30)
-        local state = stateToString(b)
-        Game.gui:Label("Button " .. i .. " " .. state, pos, 10)
+        local clicked = Game.gui:Button("Click me " .. i, pos, 60, 100, 30)
     end
 
-    local s = Game.gui:Slider(10, 120, 200, 30, -2, 2, slider_value, 0.1)
-    local state = stateToString(s)
-    slider_value = s.value
-    Game.gui:Label("Slider " .. state, 10, 160)
-    Game.gui:Label("Slider value " .. slider_value, 10, 180)
+    local s_active, s_value = Game.gui:Slider(10, 120, 200, 30, -2, 2, slider_value, 0.1)
+    slider_value = s_value
+    Game.gui:Label("Slider " .. slider_value, 10, 180)
 end
 
 function love.draw()

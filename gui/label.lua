@@ -1,4 +1,5 @@
 local UIControl = require("gui.ui_control")
+local TextComponent = require("gui.text_component")
 
 --- Creates new label
 --- @param core Core
@@ -8,22 +9,24 @@ local UIControl = require("gui.ui_control")
 local function Label(core, text, x, y)
     x, y = x or 0, y or 0
 
-    local debug = core.debug
     local font = core.font
 
     local h = font:getHeight()
     local w = font:getWidth(text)
 
     local control = UIControl:new(core, x, y, w, h)
+    core:processControl(control)
 
-    local draw_function = function()
-        control:drawText(text)
-        if debug then
-            control:drawDebugBox()
-        end
-    end
+    --- @type State
+    local state = {
+        hover = false,
+        active = false,
+        clicked = false,
+    }
+    local style = core:getStyle(state)
+    control.text = TextComponent:new(text, font, style.fg)
 
-    core:addDrawCommnad(control.id, draw_function)
+    core:addControl(control)
 end
 
 return Label

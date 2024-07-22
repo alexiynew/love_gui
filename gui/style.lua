@@ -10,7 +10,6 @@
 --- @class Style
 --- @field fg Color # foreground color
 --- @field bg Color # background color
---- @field debug_color Color # Debug color
 --- @field border Border
 
 --- @class StyleList
@@ -93,8 +92,8 @@ local debug_color = color.fuchsia
 
 --- @type Border
 local default_border = {
-    radius = 4,
-    width = 1,
+    radius = 8,
+    width = 2,
     color = border_color,
 }
 
@@ -102,7 +101,6 @@ local default_border = {
 local default = {
     fg = text_color,
     bg = bg_color,
-    debug_color = debug_color,
     border = default_border,
 }
 
@@ -110,7 +108,6 @@ local default = {
 local hover = {
     fg = text_color,
     bg = hover_bg_color,
-    debug_color = debug_color,
     border = default_border,
 }
 
@@ -118,7 +115,6 @@ local hover = {
 local active = {
     fg = color.shadowed_steel,
     bg = color.emerald,
-    debug_color = debug_color,
     border = default_border,
 }
 
@@ -127,11 +123,13 @@ local default_stile = {
     default = default,
     hover = hover,
     active = active,
+    clicked = hover,
 }
 
 --- @type StyleDescription
 local styles = {
     default = default_stile,
+    debug_color = debug_color,
 }
 
 return styles
