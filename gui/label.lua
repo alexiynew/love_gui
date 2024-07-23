@@ -11,8 +11,9 @@ local function Label(core, text, x, y)
 
     local control = UIControl:new(core, x, y, w, h)
     local state = core:processControl(control)
+    --- @type Style
     local style = core:getStyle(state)
-    control.text = TextComponent:new(text, font, style.fg)
+    control.text = TextComponent:new(text, font, style.text_color)
 
     core:addControl(control)
 end

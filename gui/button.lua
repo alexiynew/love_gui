@@ -15,10 +15,12 @@ local function Button(core, text, x, y, w, h)
     control.handle_mouse_input = true
 
     local state = core:processControl(control)
+
+    --- @type Style
     local style = core:getStyle(state)
-    control.text = TextComponent:new(text, font, style.fg, "center", "middle")
-    control.background = BackgroundComponent:new(style.bg)
-    control.border = BorderComponent:new(style.border.color, style.border.width, style.border.radius)
+    control.text = TextComponent:new(text, font, style.text_color, "center", "middle")
+    control.background = BackgroundComponent:new(style.button.color)
+    control.border = BorderComponent:fromBorderStyle(style.button.border)
 
     core:addControl(control)
 

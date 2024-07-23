@@ -9,7 +9,7 @@ local right_mouse_button = 2
 --- @class Core
 --- @field graphics table # Reference to love.graphics
 --- @field mouse table # Reference to love.mouse
---- @field style StyleDescription # Style configuration
+--- @field style StyleList # Style configuration
 --- @field mouse_pos [number,number]|nil # {x, y}
 --- @field mouse_down boolean
 --- @field debug boolean # Show debug draw
@@ -110,7 +110,8 @@ end
 --- @param state State
 --- @return Style
 function Core:getStyle(state)
-    local s = self.style.default
+    --- @type StyleList
+    local s = self.style
 
     if state.clicked then
         return s.clicked
@@ -131,7 +132,7 @@ function Core:addControl(control)
 end
 
 --- Creates new core instance
---- @param style StyleDescription
+--- @param style StyleList
 --- @return Core
 function Core:new(style)
     --- @type Core
