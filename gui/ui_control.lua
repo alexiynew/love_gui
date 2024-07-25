@@ -1,13 +1,6 @@
 
 local DebugComponent = require("gui.debug_component")
 
---- @class State
---- @field hover boolean
---- @field active boolean
---- @field clicked boolean
-local State = {}
-
-
 --- @class UIControl
 --- @field id ControlId
 --- @field x integer

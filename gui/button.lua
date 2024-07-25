@@ -15,7 +15,6 @@ local function Button(core, text, x, y, w, h)
     control.handle_mouse_input = true
 
     local state = core:processControl(control)
-
     --- @type Style
     local style = core:getStyle(state)
     control.text = TextComponent:new(text, font, style.text_color, "center", "middle")

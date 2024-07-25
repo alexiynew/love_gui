@@ -1,3 +1,29 @@
+
+--- @class State
+--- @field hover boolean
+--- @field active boolean
+--- @field clicked boolean
+local State = {}
+
+State.__tostring = function (self)
+    return "hover: " .. tostring(self.hover) .. ", active: " .. tostring(self.active) .. ", clicked: " .. tostring(self.clicked)
+end
+
+function State:new(hover, active, clicked)
+    --- @type State
+    local t = {
+        hover = hover or false,
+        active = active or false,
+        clicked = clicked or false,
+    }
+
+    setmetatable(t, self)
+    self.__index = self
+
+    return t
+end
+
+
 --- @alias Graphics table
 
 --- @alias ControlId integer
@@ -53,12 +79,10 @@ end
 --- @param id ControlId
 --- @return State
 function Core:getState(id)
+
+
     --- @type State
-    local state = {
-        hover = self.hover_id == id,
-        active = self.active_id == id,
-        clicked = self.clicked_id == id,
-    }
+    local state = State:new(self.hover_id == id, self.active_id == id, self.clicked_id == id)
 
     return state
 end
@@ -68,21 +92,18 @@ end
 --- @return State
 function Core:processControl(control)
     if not control.handle_mouse_input then
-        --- @type State
-        local state = {
-            hover = false,
-            active = false,
-            clicked = false,
-        }
-        return state
+        --- empty state
+        return State:new()
     end
 
     local x, y = control:absolutePosition()
     local w, h = control.w, control.h
     local id = control.id
 
+    --- @type boolean
     local hover = self.mouse_pos and pointInRect(self.mouse_pos, x, y, w, h) or false
-    local active = self.active_id
+    --- @type boolean
+    local active = self.active_id == id
 
     if hover then
         -- click
