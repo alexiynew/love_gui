@@ -20,17 +20,16 @@ local Game = {
 }
 
 function love.load()
-    local gui = require('gui')
+    local GUI = require('gui')
 
     Game.cursor = love.mouse.getSystemCursor("hand")
-    -- local ui_font = love.graphics.newFont("NotoSans-Regular.ttf", 14)
-    local ui_font = love.graphics.newFont("font/NotoSans-Bold.ttf", 14)
+    local ui_font = love.graphics.newFont("font/NotoSans-Regular.ttf", 12)
+    -- local ui_font = love.graphics.newFont("font/NotoSans-Bold.ttf", 14)
 
-    Game.gui = gui:new()
+    Game.gui = GUI.new()
     Game.gui:setDebugMode(false)
     Game.gui:setFont(ui_font)
 end
-
 
 local slider_value = 0
 local clicked = 0
@@ -49,7 +48,6 @@ function love.update(dt)
         end
     end
     Game.gui:Label("Button clicked " .. clicked, 10, 10)
-
 end
 
 function love.draw()

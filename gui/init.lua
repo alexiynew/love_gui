@@ -1,4 +1,4 @@
-local PATH_BASE = (...) .. "."
+local PATH_BASE = (...) .. '.'
 
 -- Load core functionality
 local Core = require(PATH_BASE .. 'core')
@@ -12,6 +12,7 @@ local Slider = require(PATH_BASE .. 'slider')
 --- @class GUI
 --- @field core Core
 local GUI = {}
+GUI.__index = GUI
 
 --- Render all UI
 function GUI:draw()
@@ -31,7 +32,7 @@ end
 --- @param x number # The x position
 --- @param y number # The y position
 --- @param w? number # The width
---- @param h? number # The hiegh
+--- @param h? number # The heigh
 --- @return boolean # true if button is clicked
 function GUI:Button(text, x, y, w, h)
     return Button(self.core, text, x, y, w, h)
@@ -41,18 +42,18 @@ end
 --- @param x number # The x position
 --- @param y number # The y position
 --- @param w? number # The width, default 100
---- @param h? number # The height, defualt 30
+--- @param h? number # The height, default 30
 --- @param min? number # The min value, default 0
---- @param max? number # The max value, defualt 100
---- @param value? number # The currnet value, default 0
+--- @param max? number # The max value, default 100
+--- @param value? number # The current value, default 0
 --- @param step? number # The step to change value, default 1
 --- @return boolean # true if slider changed value
---- @return number # new value
+--- @return number # new slider value
 function GUI:Slider(x, y, w, h, min, max, value, step)
     return Slider(self.core, x, y, w, h, min, max, value, step)
 end
 
---- Enable debug mode renderring
+--- Enable debug mode rendering
 --- @param enabled boolean
 function GUI:setDebugMode(enabled)
     self.core.debug = enabled or false
@@ -66,16 +67,13 @@ end
 
 --- Creates new GUI module instance
 --- @return GUI
-function GUI:new()
-    local t = {}
+function GUI.new()
+    local self = setmetatable({}, GUI)
 
-    t.core = Core:new(Style)
-    t.core.debug = false
+    self.core = Core.new(Style)
+    self.core.debug = false
 
-    setmetatable(t, self)
-    self.__index = self
-
-    return t
+    return self
 end
 
 return GUI

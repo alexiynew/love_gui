@@ -17,7 +17,7 @@ local HAlign = {
 --- @param font_h integer
 --- @param v_align VAlign
 --- @return integer
-local function getOffsetForAlign(box_h, font_h,  v_align)
+local function getOffsetForAlign(box_h, font_h, v_align)
     if v_align == VAlign.top then
         return 0
     elseif v_align == VAlign.middle then
@@ -30,13 +30,14 @@ local function getOffsetForAlign(box_h, font_h,  v_align)
 end
 
 
---- @class TextComponent
+--- @class TextComponent (exact)
 --- @field text string
 --- @field font table
 --- @field color Color
 --- @field h_align HAlign
 --- @field v_align VAlign
 local TextComponent = {}
+TextComponent.__index = TextComponent
 
 
 function TextComponent:draw(graphics, x, y, w, h)
@@ -56,23 +57,18 @@ end
 --- @param h_align? HAlign # default: left
 --- @param v_align? VAlign # default: middle
 --- @return TextComponent
-function TextComponent:new(text, font, color, h_align, v_align)
+function TextComponent.new(text, font, color, h_align, v_align)
     h_align = h_align or "left"
     v_align = v_align or "middle"
 
-    --- @type TextComponent
-    local t = {
-        text = text,
-        font = font,
-        color = color,
-        h_align = h_align,
-        v_align = v_align,
-    }
+    local self = setmetatable({}, TextComponent)
+    self.text = text
+    self.font = font
+    self.color = color
+    self.h_align = h_align
+    self.v_align = v_align
 
-    setmetatable(t, self)
-    self.__index = self
-
-    return t
+    return self
 end
 
 return TextComponent

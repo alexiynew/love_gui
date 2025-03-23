@@ -1,7 +1,8 @@
+local PATH_BASE = (...):match('^(.*)%..*$') .. '.'
 
-local DebugComponent = require("gui.debug_component")
+local DebugComponent = require(PATH_BASE .. 'debug_component')
 
---- @class UIControl
+--- @class UIControl (exact)
 --- @field id ControlId
 --- @field x integer
 --- @field y integer
@@ -15,8 +16,10 @@ local DebugComponent = require("gui.debug_component")
 --- @field border? BorderComponent
 --- @field debug? DebugComponent
 local UIControl = {}
+UIControl.__index = UIControl
 
-
+--- Draws the control
+--- @param graphics table love.graphics
 function UIControl:draw(graphics)
     local x, y = self:absolutePosition()
     local w, h = self.w, self.h
@@ -57,35 +60,34 @@ function UIControl:absolutePosition()
     return x, y
 end
 
-
 function UIControl:addChild(control)
-    self.children[#self.children+1] = control
+    self.children[#self.children + 1] = control
     control.parent = self
 end
 
+--- Creates new control
+--- @param core Core
+--- @param x integer
+--- @param y integer
+--- @param w integer
+--- @param h integer
+--- @return UIControl
+function UIControl.new(core, x, y, w, h)
+    local self = setmetatable({}, UIControl)
 
-function UIControl:new(core, x, y, w, h)
-    local id = core:getNewId()
-
-    --- @type UIControl
-    local t = {
-        id = id,
-        x = x,
-        y = y,
-        w = w,
-        h = h,
-        handle_mouse_input = false,
-        children = {},
-    }
+    self.id = core:getNewId()
+    self.x = x
+    self.y = y
+    self.w = w
+    self.h = h
+    self.handle_mouse_input = false
+    self.children = {}
 
     if core.debug then
-        t.debug = DebugComponent:new(core.style.debug_color)
+        self.debug = DebugComponent.new(core.style.debug_color)
     end
 
-    setmetatable(t, self)
-    self.__index = self
-
-    return t
+    return self
 end
 
 return UIControl

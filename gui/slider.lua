@@ -1,7 +1,10 @@
-local UIControl = require("gui.ui_control")
-local TextComponent = require("gui.text_component")
-local BorderComponent = require("gui.border_component")
-local BackgroundComponent = require("gui.background_component")
+local PATH_BASE = (...):match('^(.*)%..*$') .. '.'
+
+local State = require(PATH_BASE .. 'state')
+local UIControl = require(PATH_BASE .. 'ui_control')
+local TextComponent = require(PATH_BASE .. 'text_component')
+local BorderComponent = require(PATH_BASE .. 'border_component')
+local BackgroundComponent = require(PATH_BASE .. 'background_component')
 
 local function clamp(min, max, value)
     return math.max(min, math.min(max, value))
@@ -12,6 +15,8 @@ local function map(min, max, value, new_min, new_max)
     return new_min + (new_max - new_min) * t
 end
 
+---@source core
+---@param core Core
 local function Slider(core, x, y, w, h, min, max, value, step)
     x, y, w, h = x or 0, y or 0, w or 100, h or 30
     min, max, value = min or 0, max or 100, value or 0
@@ -25,10 +30,10 @@ local function Slider(core, x, y, w, h, min, max, value, step)
     local handle_x = map(min, max, value, handle_min, handle_max)
     local handle_y = (h - handle_height) / 2
 
-    local control = UIControl:new(core, x, y, w, h)
-    local line = UIControl:new(core, 0, 10, w, h - 20)
-    local handle = UIControl:new(core, handle_x, handle_y, handle_width, handle_height)
-    local text = UIControl:new(core, 0, 0, w, h)
+    local control = UIControl.new(core, x, y, w, h)
+    local line = UIControl.new(core, 0, 10, w, h - 20)
+    local handle = UIControl.new(core, handle_x, handle_y, handle_width, handle_height)
+    local text = UIControl.new(core, 0, 0, w, h)
 
     line.handle_mouse_input = true
     handle.handle_mouse_input = true
@@ -41,12 +46,13 @@ local function Slider(core, x, y, w, h, min, max, value, step)
     local handle_state = core:processControl(handle)
     local line_state = core:processControl(line)
 
+    local hover = handle_state.hover or line_state.hover
+    local active = handle_state.active or line_state.active
+    local clicked = false
+
+    --- @source state
     --- @type State
-    local state = {
-        hover = handle_state.hover or line_state.hover,
-        active = handle_state.active or line_state.active,
-        clicked = false,
-    }
+    local state = State.new(hover, active, clicked)
 
     local new_value = value
     if state.active and core.mouse_pos then
@@ -65,13 +71,13 @@ local function Slider(core, x, y, w, h, min, max, value, step)
     --- @type Style
     local style = core:getStyle(state)
 
-    text.text = TextComponent:new(tostring(new_value), core.font, style.text_color, "center", "middle")
+    text.text = TextComponent.new(tostring(new_value), core.font, style.text_color, "center", "middle")
 
-    line.background = BackgroundComponent:new(style.slider.color)
-    line.border = BorderComponent:fromBorderStyle(style.slider.border)
+    line.background = BackgroundComponent.new(style.slider.color)
+    line.border = BorderComponent.new(style.slider.border)
 
-    handle.background = BackgroundComponent:new(style.slider_handle.color)
-    handle.border = BorderComponent:fromBorderStyle(style.slider_handle.border)
+    handle.background = BackgroundComponent.new(style.slider_handle.color)
+    handle.border = BorderComponent.new(style.slider_handle.border)
 
     core:addControl(control)
 

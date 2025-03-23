@@ -1,26 +1,22 @@
-
 --- @class BackgroundComponent
 --- @field color Color
 local BackgroundComponent = {}
+BackgroundComponent.__index = BackgroundComponent
 
-function BackgroundComponent:draw(graphics, x, y, w, h, redius)
+function BackgroundComponent:draw(graphics, x, y, w, h, radius)
     graphics.setColor(self.color)
-    graphics.rectangle('fill', x, y, w, h, redius)
+    graphics.rectangle('fill', x, y, w, h, radius)
 end
 
---- Creates new debug component
+--- Creates new background component
 --- @param color Color
 --- @return BackgroundComponent
-function BackgroundComponent:new(color)
-    --- @type BackgroundComponent
-    local t = {
-        color = color,
-    }
+function BackgroundComponent.new(color)
+    local self = setmetatable({}, BackgroundComponent)
 
-    setmetatable(t, self)
-    self.__index = self
+    self.color = color or { 1, 0, 1, 1 }
 
-    return t
+    return self
 end
 
 return BackgroundComponent

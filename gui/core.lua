@@ -1,27 +1,6 @@
+local PATH_BASE = (...):match('^(.*)%..*$') .. '.'
 
---- @class State
---- @field hover boolean
---- @field active boolean
---- @field clicked boolean
-local State = {}
-
-State.__tostring = function (self)
-    return "hover: " .. tostring(self.hover) .. ", active: " .. tostring(self.active) .. ", clicked: " .. tostring(self.clicked)
-end
-
-function State:new(hover, active, clicked)
-    --- @type State
-    local t = {
-        hover = hover or false,
-        active = active or false,
-        clicked = clicked or false,
-    }
-
-    setmetatable(t, self)
-    self.__index = self
-
-    return t
-end
+local State = require(PATH_BASE .. 'state')
 
 
 --- @alias Graphics table
@@ -33,7 +12,7 @@ local left_mouse_button = 1
 local right_mouse_button = 2
 
 --- @class Core
---- @field graphics table # Reference to love.graphics
+--- @field graphics Graphics # Reference to love.graphics
 --- @field mouse table # Reference to love.mouse
 --- @field style StyleList # Style configuration
 --- @field mouse_pos [number,number]|nil # {x, y}
@@ -46,6 +25,7 @@ local right_mouse_button = 2
 --- @field active_id ControlId|nil
 --- @field clicked_id ControlId|nil
 local Core = {}
+Core.__index = Core
 
 
 local function pointInRect(point, x, y, w, h)
@@ -58,15 +38,14 @@ function Core:draw()
         c:draw(self.graphics)
     end
 
-    -- End framw
+    -- End frame
     self.mouse_pos = { self.mouse.getPosition() }
-    self.mouse_down = self.mouse.isDown( left_mouse_button, right_mouse_button )
+    self.mouse_down = self.mouse.isDown(left_mouse_button, right_mouse_button)
     self.controls = {}
     self.next_id = 0
     self.hover_id = nil
     self.clicked_id = nil
 end
-
 
 --- New control id
 --- @return ControlId
@@ -79,21 +58,19 @@ end
 --- @param id ControlId
 --- @return State
 function Core:getState(id)
-
-
     --- @type State
-    local state = State:new(self.hover_id == id, self.active_id == id, self.clicked_id == id)
+    local state = State.new(self.hover_id == id, self.active_id == id, self.clicked_id == id)
 
     return state
 end
 
---- Process controll
+--- Process control
 --- @param control UIControl
 --- @return State
 function Core:processControl(control)
     if not control.handle_mouse_input then
         --- empty state
-        return State:new()
+        return State.new()
     end
 
     local x, y = control:absolutePosition()
@@ -145,7 +122,6 @@ function Core:getStyle(state)
     return s.default
 end
 
-
 --- Adds new command to draw control
 --- @param control UIControl
 function Core:addControl(control)
@@ -155,27 +131,23 @@ end
 --- Creates new core instance
 --- @param style StyleList
 --- @return Core
-function Core:new(style)
-    --- @type Core
-    local t = {
-        graphics = love.graphics,
-        mouse = love.mouse,
-        style = style,
-        mouse_pos = nil,
-        mouse_down = false,
-        debug = false,
-        font = love.graphics.getFont(),
-        controls = {},
-        next_id = 0,
-        hover_id = nil,
-        active_id = nil,
-        clicked_id = nil,
-    }
+function Core.new(style)
+    local self = setmetatable({}, Core)
 
-    setmetatable(t, self)
-    self.__index = self
+    self.graphics = love.graphics
+    self.mouse = love.mouse
+    self.style = style
+    self.mouse_pos = nil
+    self.mouse_down = false
+    self.debug = false
+    self.font = love.graphics.getFont()
+    self.controls = {}
+    self.next_id = 0
+    self.hover_id = nil
+    self.active_id = nil
+    self.clicked_id = nil
 
-    return t
+    return self
 end
 
 return Core
