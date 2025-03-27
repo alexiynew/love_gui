@@ -1,6 +1,6 @@
-local PATH_BASE = (...):match('^(.*)%..*$') .. '.'
+local path = select(1, ...):match(".+%.") or ""
 
-local DebugComponent = require(PATH_BASE .. 'debug_component')
+local DebugComponent = require(path .. 'debug_component')
 
 --- @class UIControl (exact)
 --- @field id ControlId

@@ -1,7 +1,7 @@
-local PATH_BASE = (...):match('^(.*)%..*$') .. '.'
+local path = select(1, ...):match(".+%.") or ""
 
-local UIControl = require(PATH_BASE .. 'ui_control')
-local TextComponent = require(PATH_BASE .. 'text_component')
+local UIControl = require(path .. 'core.ui_control')
+local TextComponent = require(path .. 'core.text_component')
 
 local function Label(core, text, x, y)
     x, y = x or 0, y or 0

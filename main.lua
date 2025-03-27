@@ -20,15 +20,12 @@ local Game = {
 }
 
 function love.load()
-    local GUI = require('gui')
+    local GUI = require('some_folder.gui')
 
     Game.cursor = love.mouse.getSystemCursor("hand")
-    local ui_font = love.graphics.newFont("font/NotoSans-Regular.ttf", 12)
-    -- local ui_font = love.graphics.newFont("font/NotoSans-Bold.ttf", 14)
 
     Game.gui = GUI.new()
     Game.gui:setDebugMode(false)
-    Game.gui:setFont(ui_font)
 end
 
 local slider_value = 0

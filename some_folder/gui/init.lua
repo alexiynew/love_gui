@@ -1,13 +1,13 @@
-local PATH_BASE = (...) .. '.'
+local path = (...) .. '.'
 
 -- Load core functionality
-local Core = require(PATH_BASE .. 'core')
-local Style = require(PATH_BASE .. 'style')
+local Core = require(path .. 'core')
+local Style = require(path .. 'style')
 
 -- Load controls
-local Label = require(PATH_BASE .. 'label')
-local Button = require(PATH_BASE .. 'button')
-local Slider = require(PATH_BASE .. 'slider')
+local Label = require(path .. 'label')
+local Button = require(path .. 'button')
+local Slider = require(path .. 'slider')
 
 --- @class GUI
 --- @field core Core
@@ -70,8 +70,14 @@ end
 function GUI.new()
     local self = setmetatable({}, GUI)
 
+    local separator = '/'
+    local font_dir_path = path .. 'font'
+    font_dir_path = font_dir_path:gsub('%.', separator)
+    local font_path = font_dir_path .. separator .. 'NotoSans-Regular.ttf'
+
     self.core = Core.new(Style)
     self.core.debug = false
+    self.core.font = love.graphics.newFont(font_path, 12)
 
     return self
 end

@@ -1,9 +1,9 @@
-local PATH_BASE = (...):match('^(.*)%..*$') .. '.'
+local path = select(1, ...):match(".+%.") or ""
 
-local UIControl = require(PATH_BASE .. 'ui_control')
-local TextComponent = require(PATH_BASE .. 'text_component')
-local BorderComponent = require(PATH_BASE .. 'border_component')
-local BackgroundComponent = require(PATH_BASE .. 'background_component')
+local UIControl = require(path .. 'core.ui_control')
+local TextComponent = require(path .. 'core.text_component')
+local BorderComponent = require(path .. 'core.border_component')
+local BackgroundComponent = require(path .. 'core.background_component')
 
 local function Button(core, text, x, y, w, h)
     x, y = x or 0, y or 0

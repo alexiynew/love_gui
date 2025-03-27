@@ -1,7 +1,6 @@
-local PATH_BASE = (...):match('^(.*)%..*$') .. '.'
+local path = (...) .. '.'
 
-local State = require(PATH_BASE .. 'state')
-
+local State = require(path .. 'state')
 
 --- @alias Graphics table
 
