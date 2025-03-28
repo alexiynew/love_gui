@@ -16,9 +16,6 @@ function DebugComponent.new(color)
 
     self.color = color
 
-    -- make transparent
-    self.color[4] = 0.1
-
     return self
 end
 

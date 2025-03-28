@@ -20,7 +20,7 @@ local Game = {
 }
 
 function love.load()
-    local GUI = require('some_folder.gui')
+    local GUI = require('gui')
 
     Game.cursor = love.mouse.getSystemCursor("hand")
 

@@ -24,6 +24,9 @@ function UIControl:draw(graphics)
     local x, y = self:absolutePosition()
     local w, h = self.w, self.h
 
+    if self.debug then
+        self.debug:draw(graphics, x, y, w, h)
+    end
     if self.background then
         local radius = self.border and self.border.radius or 0
         self.background:draw(graphics, x, y, w, h, radius)
@@ -33,9 +36,6 @@ function UIControl:draw(graphics)
     end
     if self.text then
         self.text:draw(graphics, x, y, w, h)
-    end
-    if self.debug then
-        self.debug:draw(graphics, x, y, w, h)
     end
 
     if self.children then

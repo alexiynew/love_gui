@@ -24,6 +24,7 @@
 --- @field active Style|nil
 --- @field clicked Style|nil
 --- @field focus Style|nil
+--- @field debug_color Color
 
 
 local function hexToRGBA(hex)
@@ -83,7 +84,7 @@ local color = {
     fuchsia = hexToRGBA("#FF00FF")
 }
 
-local debug_color = color.fuchsia
+local debug_color = hexToRGBA("#FF00FF11")
 
 --- @type BorderStyle
 local default_border = {
