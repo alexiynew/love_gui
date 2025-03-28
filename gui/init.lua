@@ -21,32 +21,32 @@ end
 
 --- Creates new label
 --- @param text string # Text to show
---- @param x? number # The x position
---- @param y? number # The y position
+--- @param x? number # X position
+--- @param y? number # Y position
 function GUI:Label(text, x, y)
     return Label(self.core, text, x, y)
 end
 
 --- Creates new button
 --- @param text string # Text to show
---- @param x number # The x position
---- @param y number # The y position
---- @param w? number # The width
---- @param h? number # The heigh
+--- @param x number # X position
+--- @param y number # Y position
+--- @param w? number # Button width
+--- @param h? number # Button heigh
 --- @return boolean # true if button is clicked
 function GUI:Button(text, x, y, w, h)
     return Button(self.core, text, x, y, w, h)
 end
 
 --- Creates new slider
---- @param x number # The x position
---- @param y number # The y position
---- @param w? number # The width, default 100
---- @param h? number # The height, default 30
---- @param min? number # The min value, default 0
---- @param max? number # The max value, default 100
---- @param value? number # The current value, default 0
---- @param step? number # The step to change value, default 1
+--- @param x number # X position
+--- @param y number # Y position
+--- @param w? number # Slider width, default 100
+--- @param h? number # Slider height, default 30
+--- @param min? number # Min value, default 0
+--- @param max? number # Max value, default 100
+--- @param value? number # Current value, default 0
+--- @param step? number # Step to change value, default 1
 --- @return boolean # true if slider changed value
 --- @return number # new slider value
 function GUI:Slider(x, y, w, h, min, max, value, step)
